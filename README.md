@@ -6,6 +6,22 @@ Works with text files, supports automatic session saving, and offers both light 
 
 ![ntr screenshot](assets/screenshot.png)
 
+### Light theme
+
+![light theme](assets/screenshot-light.png)
+
+### Dark theme with workspaces
+
+![dark theme with workspaces](assets/screenshot-dark.png)
+
+### Workspaces
+
+![workspaces](assets/screenshot-workspaces.png)
+
+### Settings
+
+![settings](assets/screenshot-settings.png)
+
 ## Features
 
 - Workspaces for organizing tabs into groups
