@@ -162,6 +162,7 @@ export function TabBar() {
           onWheel={handleTabsWheel}
           onDragOver={handleBarDragOver}
           onDrop={handleBarDrop}
+          onDoubleClick={(e) => { if (e.target === e.currentTarget) createNoteTab(); }}
         >
           {visibleTabIds.map((tabId) => {
             const tab = tabs[tabId];
