@@ -24,11 +24,12 @@ export function useKeyboardShortcuts() {
         if (path) {
           await writeFile(path, tab.content);
           useAppStore.getState().saveTabAsFile(activeTabId, path);
+          useAppStore.getState().markTabClean(activeTabId);
         }
         return;
       }
 
-      // Ctrl+S: Save (file tabs save directly, note tabs show dialog)
+      // Ctrl+S: Save (file tabs save to disk, note tabs save in-app silently)
       if (e.ctrlKey && !e.shiftKey && isS) {
         e.preventDefault();
         const { tabs, activeTabId } = useAppStore.getState();
@@ -38,16 +39,10 @@ export function useKeyboardShortcuts() {
 
         if (tab.type === 'file' && tab.filePath) {
           await writeFile(tab.filePath, tab.content);
+          useAppStore.getState().markTabClean(activeTabId);
         } else {
-          const path = await save({
-            filters: [
-              { name: 'Text Files', extensions: ['txt', 'json', 'md'] },
-            ],
-          });
-          if (path) {
-            await writeFile(path, tab.content);
-            useAppStore.getState().saveTabAsFile(activeTabId, path);
-          }
+          // Note tab: just mark clean (content is already saved in app state)
+          useAppStore.getState().markTabClean(activeTabId);
         }
         return;
       }

@@ -127,10 +127,18 @@ export function TabBar() {
   const handleCloseTab = (e: React.MouseEvent, tabId: string) => {
     e.stopPropagation();
     const tab = tabs[tabId];
-    if (tab && tab.content.trim() === '' && !tab.name) {
+    if (!tab) return;
+    // Empty tabs: close silently
+    if (tab.content.trim() === '' && !tab.name) {
       closeTab(tabId);
       return;
     }
+    // File tabs that are not dirty: close silently
+    if (tab.type === 'file' && !tab.isDirty) {
+      closeTab(tabId);
+      return;
+    }
+    // Everything else: show dialog
     setClosingTabId(tabId);
   };
 
@@ -140,7 +148,10 @@ export function TabBar() {
       const detail = (e as CustomEvent).detail;
       if (detail?.tabId) {
         const tab = useAppStore.getState().tabs[detail.tabId];
-        if (tab && tab.content.trim() === '' && !tab.name) {
+        if (!tab) return;
+        if (tab.content.trim() === '' && !tab.name) {
+          closeTab(detail.tabId);
+        } else if (tab.type === 'file' && !tab.isDirty) {
           closeTab(detail.tabId);
         } else {
           setClosingTabId(detail.tabId);
@@ -189,6 +200,9 @@ export function TabBar() {
                 data-tab-id={tabId}
                 data-dragging={draggedTabId === tabId ? 'true' : undefined}
               >
+                {tab.isDirty && (
+                  <span className="tab-dirty-dot" title="Unsaved changes" />
+                )}
                 {renamingTabId === tabId ? (
                   <input
                     className="tab-rename-input"

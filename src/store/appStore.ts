@@ -17,6 +17,7 @@ interface AppActions {
   updateTabScroll: (tabId: string, scrollTop: number) => void;
   updateTabCursor: (tabId: string, cursorPosition: number) => void;
   saveTabAsFile: (tabId: string, filePath: string) => void;
+  markTabClean: (tabId: string) => void;
 
   // Workspace actions
   createWorkspace: () => void;
@@ -113,6 +114,7 @@ export const useAppStore = create<Store>((set, get) => ({
       workspaceId: activeWorkspaceId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      isDirty: false,
     };
     set((state) => ({
       tabs: { ...state.tabs, [id]: tab },
@@ -148,6 +150,7 @@ export const useAppStore = create<Store>((set, get) => ({
       workspaceId: activeWorkspaceId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      isDirty: false,
     };
     set((state) => ({
       tabs: { ...state.tabs, [id]: tab },
@@ -208,7 +211,7 @@ export const useAppStore = create<Store>((set, get) => ({
       return {
         tabs: {
           ...state.tabs,
-          [tabId]: { ...tab, content, updatedAt: Date.now() },
+          [tabId]: { ...tab, content, updatedAt: Date.now(), isDirty: true },
         },
       };
     });
@@ -337,7 +340,20 @@ export const useAppStore = create<Store>((set, get) => ({
       return {
         tabs: {
           ...state.tabs,
-          [tabId]: { ...tab, type: 'file' as const, filePath, name: fileName, updatedAt: Date.now() },
+          [tabId]: { ...tab, type: 'file' as const, filePath, name: fileName, updatedAt: Date.now(), isDirty: false },
+        },
+      };
+    });
+  },
+
+  markTabClean: (tabId: string) => {
+    set((state) => {
+      const tab = state.tabs[tabId];
+      if (!tab) return state;
+      return {
+        tabs: {
+          ...state.tabs,
+          [tabId]: { ...tab, isDirty: false },
         },
       };
     });
@@ -535,9 +551,18 @@ export const useAppStore = create<Store>((set, get) => ({
         .sort((a, b) => a.createdAt - b.createdAt)
         .map((w) => w.id);
 
+    // Migrate tabs: ensure isDirty exists
+    const migratedTabs: Record<string, Tab> = {};
+    for (const [id, tab] of Object.entries(state.tabs)) {
+      migratedTabs[id] = {
+        ...tab,
+        isDirty: tab.isDirty ?? false,
+      };
+    }
+
     set({
       workspaces: migratedWorkspaces,
-      tabs: state.tabs,
+      tabs: migratedTabs,
       activeWorkspaceId: state.activeWorkspaceId,
       activeTabId: state.activeTabId,
       isWorkspacePanelOpen: state.isWorkspacePanelOpen,

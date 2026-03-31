@@ -4,11 +4,11 @@ export type PastelColor =
   | '#cccccc'
   | '#aaaaaa'
   | '#888888'
-  | '#e8d0d0'
-  | '#e8dcc8'
-  | '#d0e0d0'
-  | '#c8d8e8'
-  | '#d8d0e0';
+  | '#f28b82'
+  | '#f6bf56'
+  | '#81c995'
+  | '#78aefa'
+  | '#c58af9';
 
 export type ThemeName = 'monokai' | 'sixteen' | 'celeste' | 'breeze';
 
@@ -24,6 +24,7 @@ export interface Tab {
   workspaceId: string;
   createdAt: number;
   updatedAt: number;
+  isDirty: boolean;
 }
 
 export interface Workspace {
